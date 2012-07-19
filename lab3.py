@@ -126,7 +126,7 @@ def cs144net():
     "Create a simple network for cs144"
     r = get_ip_setting()
     if r == -1:
-        sys.exit("Couldn't load config file for ip addresses, check whether %s exists" % IPCONFIG_FILE)
+        exit("Couldn't load config file for ip addresses, check whether %s exists" % IPCONFIG_FILE)
     else:
         info( '*** Successfully loaded ip settings for hosts\n %s\n' % IP_SETTING)
 

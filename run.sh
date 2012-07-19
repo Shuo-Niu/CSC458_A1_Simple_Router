@@ -12,6 +12,7 @@ else
   echo routing table is ready
 fi
 
-screen -S mininet -D -R sudo python lab3.py
-screen -S pox -D -R ./pox/pox.py cs144.ofhandler cs144.srhandler
+screen -S mininet -d -m sudo python lab3.py
+screen -S pox -d -m ./pox/pox.py cs144.ofhandler cs144.srhandler
+screen -ls 
 

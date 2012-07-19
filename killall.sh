@@ -3,4 +3,4 @@ screen -S mininet -X quit
 screen -S pox -X quit
 pkill -9 sr_solution
 pkill -9 sr
-pkill -9 python
+sudo pkill -9 python

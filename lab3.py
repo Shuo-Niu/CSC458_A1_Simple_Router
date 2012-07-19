@@ -18,7 +18,7 @@ from subprocess import Popen, STDOUT, PIPE
 
 IPBASE = '10.3.0.0/16'
 ROOTIP = '10.3.0.100/16'
-IPCONFIG_FILE = '/home/ubuntu/cs144/lab3/router_mininet/ip_config'
+IPCONFIG_FILE = '/home/ubuntu/cs144_lab3/IP_CONFIG'
 IP_SETTING={}
 
 class CS144Topo( Topo ):

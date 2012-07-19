@@ -41,7 +41,7 @@ import sys
 
 log = core.getLogger()
 FLOOD_DELAY = 5
-IPCONFIG_FILE = '/home/ubuntu/lab3/IP_CONFIG'
+IPCONFIG_FILE = '/home/ubuntu/cs144_lab3/IP_CONFIG'
 IP_SETTING={}
 RTABLE = []
 ROUTER_IP={}

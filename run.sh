@@ -6,7 +6,7 @@ screen -S pox -X quit
 pkill -9 sr_solution
 pkill -9 sr
 
-sleep 1
+sleep 5
 
 RULE_INSTALLED=`sudo ip rule list | grep cs144 | awk '{print $3}'`
 if [ ! -n "$RULE_INSTALLED" ]; then 

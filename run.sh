@@ -1,11 +1,11 @@
 #!/bin/bash
 
-echo kill stale sessions
-screen -S mininet -X quit
-screen -S pox -X quit
+#echo kill stale sessions
+#screen -S mininet -X quit
+#screen -S pox -X quit
 pkill -9 sr_solution
 pkill -9 sr
-sudo pkill -9 python
+#sudo pkill -9 python
 
 RULE_INSTALLED=`sudo ip rule list | grep cs144 | awk '{print $3}'`
 if [ ! -n "$RULE_INSTALLED" ]; then 
@@ -31,8 +31,19 @@ else
 fi
 
 echo start new sessions 
-screen -S mininet -d -m sudo python lab3.py
-screen -S pox -d -m ./pox/pox.py cs144.ofhandler cs144.srhandler
+SID=`screen -ls | grep mininet`
+if [ -n "$SID" ]; then
+    echo "mininet is running already, to stop it, obtain the screen by 'screen -r mininet' and then ctrl-D "
+else
+    screen -S mininet -d -m sudo python lab3.py
+fi
+SID=`screen -ls | grep pox`
+if [ -n "$SID" ]; then
+    echo "pox is running already, to stop it, obtain the screen by 'screen -r pox' and then ctrl-D "
+else
+    screen -S pox -d -m ./pox/pox.py cs144.ofhandler cs144.srhandler
+fi
+
 echo "Your mininet and pox are running inside the following screen sessions"
 echo "You can use 'screen -r mininet' or 'screen -r pox', if you want to retain the session"
 screen -ls 

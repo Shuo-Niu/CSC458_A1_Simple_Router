@@ -5,8 +5,7 @@ screen -S mininet -X quit
 screen -S pox -X quit
 pkill -9 sr_solution
 pkill -9 sr
-
-sleep 5
+sudo pkill -9 python
 
 RULE_INSTALLED=`sudo ip rule list | grep cs144 | awk '{print $3}'`
 if [ ! -n "$RULE_INSTALLED" ]; then 

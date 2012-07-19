@@ -26,6 +26,8 @@ fi
 echo kill stale sessions
 screen -S mininet -X quit
 screen -S pox -X quit
+pkill -9 sr_solution
+pkill -9 sr
 echo start new sessions 
 screen -S mininet -d -m sudo python lab3.py
 screen -S pox -d -m ./pox/pox.py cs144.ofhandler cs144.srhandler

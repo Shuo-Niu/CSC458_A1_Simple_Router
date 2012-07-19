@@ -1,5 +1,13 @@
 #!/bin/bash
 
+echo kill stale sessions
+screen -S mininet -X quit
+screen -S pox -X quit
+pkill -9 sr_solution
+pkill -9 sr
+
+sleep 1
+
 RULE_INSTALLED=`sudo ip rule list | grep cs144 | awk '{print $3}'`
 if [ ! -n "$RULE_INSTALLED" ]; then 
   echo Installing source routing rule
@@ -23,15 +31,11 @@ else
   echo bridge is ready
 fi
 
-echo kill stale sessions
-screen -S mininet -X quit
-screen -S pox -X quit
-pkill -9 sr_solution
-pkill -9 sr
 echo start new sessions 
 screen -S mininet -d -m sudo python lab3.py
 screen -S pox -d -m ./pox/pox.py cs144.ofhandler cs144.srhandler
-echo "Your mininet and pox are running inside the follow screen sessions, use 'screen -r mininet' or 'screen -r pox' to obtain the session"
+echo "Your mininet and pox are running inside the following screen sessions"
+echo "You can use 'screen -r mininet' or 'screen -r pox', if you want to retain the session"
 screen -ls 
 echo "Now it is time to run your sr program, or you can try out the ./sr_solution"
 echo "After running your sr program, try 'ping <SERVER1_IP>' from myth machine"

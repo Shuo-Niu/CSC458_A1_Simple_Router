@@ -1,5 +1,8 @@
 #!/bin/bash
 
+cd pox_module
+sudo python setup.py develop
+
 #echo kill stale sessions
 #screen -S mininet -X quit
 #screen -S pox -X quit

@@ -1,6 +1,0 @@
-server1 <ELASTIC_IP>
-server2 <ELASTIC_IP>
-sw0-eth1 <ELASTIC_IP>
-sw0-eth2 <ELASTIC_IP>
-sw0-eth3 10.0.1.11
-

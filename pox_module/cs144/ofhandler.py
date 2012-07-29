@@ -210,7 +210,6 @@ class OFHandler (EventMixin):
             ip_pkt.csum = ip_pkt.checksum()
             ip_pkt.raw = None
             packet.next = ip_pkt
-            new_packet = packet.pack()
             if ( ip_pkt.protocol == ipv4.ICMP_PROTOCOL ):
                 icmp_pkt = ip_pkt.next
                 icmp_pkt.raw = None
@@ -219,6 +218,7 @@ class OFHandler (EventMixin):
                         ip_hdr.dstip = IPAddr(INTERNAL_NAME[NAME_SETTING[src_ip]])
                         #print "Replace icmp MSG IP addr !!!!\n"
                         #print icmp_pkt
+            new_packet = packet.pack()
       elif( packet.type == ethernet.ARP_TYPE ):
         if( packet.next.opcode == arp.REQUEST ):
 #          print "get a arp request"

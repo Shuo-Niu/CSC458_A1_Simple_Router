@@ -27,6 +27,7 @@ from pox.lib.util import dpidToStr
 from pox.lib.util import str_to_bool
 from pox.lib.packet.ethernet import ethernet
 from pox.lib.packet.ipv4 import ipv4
+import pox.lib.packet.icmp as icmp
 from pox.lib.packet.arp import arp
 from pox.lib.packet.udp import udp
 from pox.lib.packet.dns import dns
@@ -210,6 +211,14 @@ class OFHandler (EventMixin):
             ip_pkt.raw = None
             packet.next = ip_pkt
             new_packet = packet.pack()
+            if ( ip_pkt.protocol == ipv4.ICMP_PROTOCOL ):
+                icmp_pkt = ip_pkt.next
+                icmp_pkt.raw = None
+                if( icmp_pkt.type == 3 ):
+                        ip_hdr = icmp_pkt.next.next
+                        ip_hdr.dstip = IPAddr(INTERNAL_NAME[NAME_SETTING[src_ip]])
+                        #print "Replace icmp MSG IP addr !!!!\n"
+                        #print icmp_pkt
       elif( packet.type == ethernet.ARP_TYPE ):
         if( packet.next.opcode == arp.REQUEST ):
 #          print "get a arp request"

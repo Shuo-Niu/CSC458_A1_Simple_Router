@@ -55,7 +55,7 @@ $(sr_OBJS) : %.o : %.c
 $(sr_DEPS) : .%.d : %.c
 	$(CC) -MM $(CFLAGS) $<  > $@
 
-include $(sr_DEPS)	
+-include $(sr_DEPS)	
 
 sr : $(sr_OBJS)
 	$(CC) $(CFLAGS) -o sr $(sr_OBJS) $(LIBS) 

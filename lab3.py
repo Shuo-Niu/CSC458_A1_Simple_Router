@@ -103,6 +103,7 @@ def set_default_route(host):
     elif(host.name == 'server2'):
         routerip = IP_SETTING['sw0-eth2']
     print host.name, routerip
+    host.cmd('route add %s/32 dev %s-eth0' % (routerip, host.name))
     host.cmd('route add default gw %s dev %s-eth0' % (routerip, host.name))
     #HARDCODED
     #host.cmd('route del -net 10.3.0.0/16 dev %s-eth0' % host.name)

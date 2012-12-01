@@ -137,7 +137,7 @@ def cs144net():
     s1intf.setIP('%s/8' % IP_SETTING['server1'])
     s2intf = server2.defaultIntf()
     s2intf.setIP('%s/8' % IP_SETTING['server2'])
-    clintf = server2.defaultIntf()
+    clintf = client.defaultIntf()
     clintf.setIP('%s/8' % IP_SETTING['client'])
 
 

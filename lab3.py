@@ -29,8 +29,8 @@ class CS144Topo( Topo ):
         server1 = self.add_host( 'server1' )
         server2 = self.add_host( 'server2' )
         router = self.add_switch( 'sw0' )
-        root = self.add_host( 'root', inNamespace=False )
-        for h in server1, server2, root: #client, root:
+        client = self.add_host('client')
+        for h in server1, server2, client:
             self.add_link( h, router )
 
 
@@ -99,6 +99,8 @@ def set_default_route(host):
         routerip = IP_SETTING['sw0-eth1']
     elif(host.name == 'server2'):
         routerip = IP_SETTING['sw0-eth2']
+    elif(host.name == 'client'):
+        routerip = IP_SETTING['sw0-eth3']
     print host.name, routerip
     host.cmd('route add %s/32 dev %s-eth0' % (routerip, host.name))
     host.cmd('route add default gw %s dev %s-eth0' % (routerip, host.name))
@@ -130,18 +132,21 @@ def cs144net():
     info( '*** Creating network\n' )
     net = Mininet( topo=topo, controller=RemoteController, ipBase=IPBASE )
     net.start()
-    server1, server2, router = net.get( 'server1', 'server2', 'sw0')
+    server1, server2, client, router = net.get( 'server1', 'server2', 'client', 'sw0')
     s1intf = server1.defaultIntf()
     s1intf.setIP('%s/8' % IP_SETTING['server1'])
     s2intf = server2.defaultIntf()
     s2intf.setIP('%s/8' % IP_SETTING['server2'])
+    clintf = server2.defaultIntf()
+    clintf.setIP('%s/8' % IP_SETTING['client'])
 
-    cmd = ['ifconfig', "eth1"]
-    process = Popen(cmd, stdout=PIPE, stderr=STDOUT)
-    hwaddr = Popen(["grep", "HWaddr"], stdin=process.stdout, stdout=PIPE)
-    eth1_hw = hwaddr.communicate()[0]
-    info( '*** setting mac address of sw0-eth3 the same as eth1 (%s)\n' % eth1_hw.split()[4])
-    router.intf('sw0-eth3').setMAC(eth1_hw.split()[4])
+
+    #cmd = ['ifconfig', "eth1"]
+    #process = Popen(cmd, stdout=PIPE, stderr=STDOUT)
+    #hwaddr = Popen(["grep", "HWaddr"], stdin=process.stdout, stdout=PIPE)
+    #eth1_hw = hwaddr.communicate()[0]
+    #info( '*** setting mac address of sw0-eth3 the same as eth1 (%s)\n' % eth1_hw.split()[4])
+    #router.intf('sw0-eth3').setMAC(eth1_hw.split()[4])
     
    
     #for host in server1, server2, client:

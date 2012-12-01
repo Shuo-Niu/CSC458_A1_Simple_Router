@@ -47,18 +47,8 @@ IP_SETTING={}
 RTABLE = []
 ROUTER_IP={}
 
-INTERNAL_IP = {}
-INTERNAL_IP['10.0.1.10'] = 'server1'
-INTERNAL_IP['10.0.1.12'] = 'server2'
-INTERNAL_IP['10.0.1.13'] = 'sw0-eth1'
-INTERNAL_IP['10.0.1.14'] = 'sw0-eth2'
-INTERNAL_IP['10.0.1.11'] = 'sw0-eth3'
-
-
-INTERNAL_NAME = {}
-NAME_SETTING = {}
 #Topology is fixed 
-#sw0-eth1:server1-eth0 sw0-eth2:server2-eth0 sw0-eth3:Internet
+#sw0-eth1:server1-eth0 sw0-eth2:server2-eth0 sw0-eth3:client
 
 class RouterInfo(Event):
   '''Event to raise upon the information about an openflow router is ready'''
@@ -75,7 +65,7 @@ class OFHandler (EventMixin):
     self.connection = connection
     self.transparent = transparent
     self.sw_info = {}
-    self.connection.send(of.ofp_switch_config(miss_send_len = 20000))
+    self.connection.send(of.ofp_switch_config(miss_send_len = 65535))
     for port in connection.features.ports:
         intf_name = port.name.split('-')
         if(len(intf_name) < 2):
@@ -95,147 +85,21 @@ class OFHandler (EventMixin):
     Handles packet in messages from the switch to implement above algorithm.
     """
     pkt = event.parse()
-    #code.interact(local=locals())
-        
-    #log.debug("OFHandler: Got OF PacketIN!\n")
+    raw_packet = pkt.raw
+    core.cs144_ofhandler.raiseEvent(SRPacketIn(raw_packet, event.port))
+    msg = of.ofp_packet_out()
+    msg.buffer_id = event.ofp.buffer_id
+    msg.in_port = event.port
+    self.connection.send(msg)
 
-    if( event.port == 3 and pkt.type == ethernet.ARP_TYPE and pkt.next.opcode == arp.REQUEST):
-        arp_req = pkt.next
-        #log.debug("\nGot a packet request from port 3, flood it\n")
-        arp_reply = arp()
-        arp_reply.hwtype = arp_req.hwtype
-        arp_reply.prototype = arp_req.prototype
-        arp_reply.hwlen = arp_req.hwlen
-        arp_reply.protolen = arp_req.protolen
-        arp_reply.opcode = arp.REPLY
-        arp_reply.protodst = arp_req.protosrc
-        arp_reply.protosrc = arp_req.protodst
-        arp_reply.hwsrc = EthAddr(self.sw_info["eth3"][1])
-        arp_reply.hwdst = arp_req.hwsrc
-        e = ethernet(type=pkt.type, src=arp_reply.hwsrc, dst=arp_req.hwsrc)
-        e.payload = arp_reply
-        msg = of.ofp_packet_out()
-        msg.data = e.pack()
-        msg.actions.append(of.ofp_action_output(port = of.OFPP_IN_PORT))
-        msg.in_port = event.port
-        event.connection.send(msg)
-    elif (event.port == 3) :
-        #log.debug("OFHandler: raise SRPacketIn event\n")
-        #log.debug("OFHandler: packet from outside, translate address\n")
-        #implement an internal NAT here
-        packet = event.parse()
-        #print 'original packet: ', packet 
-        if( packet.type == ethernet.IP_TYPE ):
-          ip_pkt = packet.next
-          #print INTERNAL_IP.keys()
-          #print IP_SETTING.values()
-          #print ip_pkt.dstip 
-          dst_ip = ip_pkt.dstip.toStr()
-          src_ip = ip_pkt.srcip.toStr()
-          if(dst_ip in INTERNAL_IP.keys()):
-            #print "change IP destination\n"
-            ip_pkt.dstip = IPAddr(IP_SETTING[INTERNAL_IP[dst_ip]])
-            ip_pkt.csum = ip_pkt.checksum()
-#            ip_pkt.raw = ip_pkt.pack()
-            ip_pkt.raw = None
-            packet.next = ip_pkt
-        elif( packet.type == ethernet.ARP_TYPE ):
-          if( packet.next.opcode == arp.REPLY ):
-            arp_reply = packet.next
-            dst_ip = arp_reply.protodst.toStr()
-            if( dst_ip in INTERNAL_IP.keys()):
-              #print "change arp reply dst \n"
-              arp_reply.protodst = IPAddr(IP_SETTING[INTERNAL_IP[dst_ip]])
-              #print arp_reply.protodst
-              arp_reply.raw = None
-              packet.next = arp_reply
-        #print "modified packet: ", packet
-        raw_packet = packet.pack()
-        core.cs144_ofhandler.raiseEvent(SRPacketIn(raw_packet, event.port))
-    else:
-        raw_packet = pkt.raw
-        core.cs144_ofhandler.raiseEvent(SRPacketIn(raw_packet, event.port))
-        # Drop this packet as we won't reference it.  Just trying to be
-        # safe so that OVS's/vswitchd's buffer doesn't have stale packets.
-        msg = of.ofp_packet_out()
-        msg.buffer_id = event.ofp.buffer_id
-        msg.in_port = event.port
-        self.connection.send(msg)
 
   def _handle_SRPacketOut(self, event):
     msg = of.ofp_packet_out()
     new_packet = event.pkt
-    if(event.port == 3):
-      #out going packet, need to go through NAT
-      packet = ethernet(raw = event.pkt)
-      if( packet.type == ethernet.IP_TYPE ):
-        #print "in SRPacketOut"
-        #print packet
-        ip_pkt = ipv4(raw=event.pkt[ethernet.MIN_LEN:])
-        if( ip_pkt.protocol == ipv4.UDP_PROTOCOL and ip_pkt.next.dstport == 53):
-          src_ip = ip_pkt.srcip.toStr()
-          if( src_ip in IP_SETTING.values()):
-            ip_pkt.srcip = IPAddr(INTERNAL_NAME[NAME_SETTING[src_ip]])
-            ip_pkt.csum = ip_pkt.checksum()
-            packet.next = ip_pkt
-            #new_packet = packet.pack()
-            #event.pkt[ethernet.MIN_LEN:ipv4.hl] = ip_pkt.tyhdr()
-            #ipp = ip_pkt
-            #event.pkt[ethernet.MIN_LEN:ip_pkt.hl] = struct.pack('!BBHHHBBHII', (ipp.v << 4) + ipp.hl, ipp.tos, ipp.iplen, ipp.id, (ipp.flags << 13) | ipp.frag, ipp.ttl, ipp.protocol, ipp.csum, ipp.srcip.toUnsigned(), ipp.dstip.toUnsigned())
-            #npkt = ipv4(raw=event.pkt[ethernet.MIN_LEN:])
-            #print npkt
-#            udp_pkt= ip_pkt.next
-#            dns_pkt = udp_pkt.next
-#            print dns_pkt
-#            d = dns()
-#            u = udp()
-#            ipp = ipv4()
-#            ipp.protocol = ipp.UDP_PROTOCOL
-#            ipp.srcip = IPAddr(INTERNAL_NAME[NAME_SETTING[src_ip]])
-#            ipp.dstip = ip_pkt.dstip
-#            e = ethernet()
-#            e.src = packet.src
-#            e.dst = packet.dst
-#            e.type = e.IP_TYPE
-#            ipp.payload = udp_pkt
-#            e.payload = ipp
-#            new_packet = e.pack()
-        else:  
-          src_ip = ip_pkt.srcip.toStr()
-          #print ip_pkt.srcip
-          if(src_ip in IP_SETTING.values()):
-#            print "change IP src\n"
-            ip_pkt.srcip = IPAddr(INTERNAL_NAME[NAME_SETTING[src_ip]])
-#            print ip_pkt.srcip
-            ip_pkt.csum = ip_pkt.checksum()
-            ip_pkt.raw = None
-            packet.next = ip_pkt
-            if ( ip_pkt.protocol == ipv4.ICMP_PROTOCOL ):
-                icmp_pkt = ip_pkt.next
-                icmp_pkt.raw = None
-                if( icmp_pkt.type == 3 ):
-                        ip_hdr = icmp_pkt.next.next
-                        ip_hdr.dstip = IPAddr(INTERNAL_NAME[NAME_SETTING[src_ip]])
-                        #print "Replace icmp MSG IP addr !!!!\n"
-                        #print icmp_pkt
-            new_packet = packet.pack()
-      elif( packet.type == ethernet.ARP_TYPE ):
-        if( packet.next.opcode == arp.REQUEST ):
-#          print "get a arp request"
-          arp_req = packet.next
-          src_ip = arp_req.protosrc.toStr()
-          if( src_ip in IP_SETTING.values()):
-#            print "change arp request src \n"
-            arp_req.protosrc = IPAddr(INTERNAL_NAME[NAME_SETTING[src_ip]])
-#            print arp_req.protosrc
-            arp_req.raw = None
-            packet.next = arp_req
-            new_packet = packet.pack()
     msg.actions.append(of.ofp_action_output(port=event.port))
     msg.buffer_id = -1
     msg.in_port = of.OFPP_NONE
     msg.data = new_packet
-    #log.debug("SRServer catch SRPacketOut event, fwd_pkt=%r, port=%s\n" % (event.pkt, event.port))
     self.connection.send(msg)
 
 class SRPacketIn(Event):
@@ -276,23 +140,11 @@ def get_ip_setting():
       sys.exit(2)
     #print name, ip
     IP_SETTING[name] = ip
-    NAME_SETTING[ip] = name
-
-  RTABLE.append( ('0.0.0.0', '10.0.1.1', '0.0.0.0', 'eth3') )
-  RTABLE.append( ('%s' % IP_SETTING['server1'], '%s' % IP_SETTING['server1'], '255.255.255.255', 'eth1') )
-  RTABLE.append( ('%s' % IP_SETTING['server2'], '%s' % IP_SETTING['server2'], '255.255.255.255', 'eth2') )
-
-# We don't want to flood immediately when a switch connects.
   ROUTER_IP['eth1'] = '%s' % IP_SETTING['sw0-eth1']
   ROUTER_IP['eth2'] = '%s' % IP_SETTING['sw0-eth2']
   ROUTER_IP['eth3'] = '%s' % IP_SETTING['sw0-eth3']
-
-  for key in INTERNAL_IP.keys():
-    value = INTERNAL_IP[key]
-    INTERNAL_NAME[value] = key
-
-
   return 0
+
 
 def launch (transparent=False):
   """
@@ -304,6 +156,5 @@ def launch (transparent=False):
   if r == -1:
     log.debug("Couldn't load config file for ip addresses, check whether %s exists" % IPCONFIG_FILE)
     sys.exit(2)
-    #sys.exit("Couldn't load config file for ip addresses, check whether %s exists" % IPCONFIG_FILE)
   else:
     log.debug('*** ofhandler: Successfully loaded ip settings for hosts\n %s\n' % IP_SETTING)

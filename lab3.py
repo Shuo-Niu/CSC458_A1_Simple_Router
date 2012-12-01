@@ -83,7 +83,7 @@ def stopsshd():
 def starthttp( host ):
     "Start simple Python web server on hosts"
     info( '*** Starting SimpleHTTPServer on host', host, '\n' )
-    host.cmd( 'cd ./http_%s/; nohup python2.7 ./webserver.py &' % (host.name, host.name) )
+    host.cmd( 'cd ./http_%s/; nohup python2.7 ./webserver.py &' % (host.name) )
 
 
 def stophttp():

@@ -83,10 +83,7 @@ def stopsshd():
 def starthttp( host ):
     "Start simple Python web server on hosts"
     info( '*** Starting SimpleHTTPServer on host', host, '\n' )
-    #host.cmd( 'cd ~/http_%s/; python -m SimpleHTTPServer 80 >& /tmp/%s.log &' % (host.name, host.name) )
-    #host.cmd( 'cd ~/http_%s/; nohup python2.7 ~/http_%s/webserver.py >& /tmp/%s.log &' % (host.name, host.name, host.name) )
     host.cmd( 'cd ~/http_%s/; nohup python2.7 ~/http_%s/webserver.py &' % (host.name, host.name) )
-    #host.cmd( 'cd ~/http_%s/; screen -S webserver -D -R python2.7 ~/http_%s/webserver.py ' % (host.name, host.name) )
 
 
 def stophttp():
@@ -105,8 +102,6 @@ def set_default_route(host):
     print host.name, routerip
     host.cmd('route add %s/32 dev %s-eth0' % (routerip, host.name))
     host.cmd('route add default gw %s dev %s-eth0' % (routerip, host.name))
-    #HARDCODED
-    #host.cmd('route del -net 10.3.0.0/16 dev %s-eth0' % host.name)
     ips = IP_SETTING[host.name].split(".") 
     host.cmd('route del -net %s.0.0.0/8 dev %s-eth0' % (ips[0], host.name))
 
@@ -133,10 +128,8 @@ def cs144net():
 
     topo = CS144Topo()
     info( '*** Creating network\n' )
-    #net = Mininet( topo=topo, controller=CS144Controller, ipBase=IPBASE )
     net = Mininet( topo=topo, controller=RemoteController, ipBase=IPBASE )
     net.start()
-    #server1, server2, router, client = net.get( 'server1', 'server2', 'sw0', 'client')
     server1, server2, router = net.get( 'server1', 'server2', 'sw0')
     s1intf = server1.defaultIntf()
     s1intf.setIP('%s/8' % IP_SETTING['server1'])
@@ -158,7 +151,6 @@ def cs144net():
     starthttp( server2 )
     CLI( net )
     stophttp()
-#    stopsshd()
     net.stop()
 
 

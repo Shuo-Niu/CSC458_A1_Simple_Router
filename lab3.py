@@ -150,7 +150,7 @@ def cs144net():
     
    
     #for host in server1, server2, client:
-    for host in server1, server2:
+    for host in server1, server2, client:
         set_default_route(host)
     starthttp( server1 )
     starthttp( server2 )

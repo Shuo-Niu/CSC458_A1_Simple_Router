@@ -141,15 +141,6 @@ def cs144net():
     clintf.setIP('%s/8' % IP_SETTING['client'])
 
 
-    #cmd = ['ifconfig', "eth1"]
-    #process = Popen(cmd, stdout=PIPE, stderr=STDOUT)
-    #hwaddr = Popen(["grep", "HWaddr"], stdin=process.stdout, stdout=PIPE)
-    #eth1_hw = hwaddr.communicate()[0]
-    #info( '*** setting mac address of sw0-eth3 the same as eth1 (%s)\n' % eth1_hw.split()[4])
-    #router.intf('sw0-eth3').setMAC(eth1_hw.split()[4])
-    
-   
-    #for host in server1, server2, client:
     for host in server1, server2, client:
         set_default_route(host)
     starthttp( server1 )

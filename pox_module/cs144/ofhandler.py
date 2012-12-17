@@ -42,7 +42,8 @@ import sys
 
 log = core.getLogger()
 FLOOD_DELAY = 5
-IPCONFIG_FILE = '/home/ubuntu/cs144_lab3/IP_CONFIG'
+#default location /home/ubuntu/cs144_lab3/IP_CONFIG
+IPCONFIG_FILE = './IP_CONFIG'
 IP_SETTING={}
 RTABLE = []
 ROUTER_IP={}
@@ -140,6 +141,12 @@ def get_ip_setting():
       sys.exit(2)
     #print name, ip
     IP_SETTING[name] = ip
+
+  RTABLE.append( ('%s' % IP_SETTING['client'], '%s' % IP_SETTING['client'], '255.255.255.255', 'eth3') )
+  RTABLE.append( ('%s' % IP_SETTING['server1'], '%s' % IP_SETTING['server1'], '255.255.255.255', 'eth1') )
+  RTABLE.append( ('%s' % IP_SETTING['server2'], '%s' % IP_SETTING['server2'], '255.255.255.255', 'eth2') )
+
+
   ROUTER_IP['eth1'] = '%s' % IP_SETTING['sw0-eth1']
   ROUTER_IP['eth2'] = '%s' % IP_SETTING['sw0-eth2']
   ROUTER_IP['eth3'] = '%s' % IP_SETTING['sw0-eth3']
@@ -148,7 +155,7 @@ def get_ip_setting():
 
 def launch (transparent=False):
   """
-  Starts an cs144 - L2 learning switch.
+  Starts an Simple Router Topology
   """    
   core.registerNew(cs144_ofhandler, str_to_bool(transparent))
   

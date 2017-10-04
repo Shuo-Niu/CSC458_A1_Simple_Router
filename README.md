@@ -25,7 +25,7 @@
 ```./sr```
 
 ---
-### Pull from Github
+### Pull from Github to update the code on VM
 Remove the original project folder on VM and pull the latest version from Github.
 
 ```cd ~```

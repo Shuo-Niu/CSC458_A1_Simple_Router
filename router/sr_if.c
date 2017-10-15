@@ -60,7 +60,7 @@ struct sr_if* sr_get_interface_by_ip(struct sr_instance* sr, uint32_t ip) {
     struct sr_if* if_walker = 0;
 
     /* -- REQUIRES -- */
-    assert(name);
+    assert(ip);
     assert(sr);
 
     if_walker = sr->if_list;
@@ -80,7 +80,7 @@ struct sr_if* sr_get_interface_by_addr(struct sr_instance* sr, unsigned char* ad
     struct sr_if* if_walker = 0;
     
     /* -- REQUIRES -- */
-    assert(name);
+    assert(addr);
     assert(sr);
     
     if_walker = sr->if_list;

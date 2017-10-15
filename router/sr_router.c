@@ -241,7 +241,7 @@ void sr_handlepacket(struct sr_instance* sr,
             }
 
             /* Check if destined for one of the router's interfaces */
-            struct sr_if *dest = sr_get_interface_ip(sr, arphdr->ar_tip);
+            struct sr_if *dest = sr_get_interface_by_ip(sr, arphdr->ar_tip);
 
             /* Drop it if it's not for the router */
             if (!dest) {
@@ -328,7 +328,7 @@ void sr_handlepacket(struct sr_instance* sr,
             }
 
             /* Check if destined for one of the router's interfaces */
-            struct sr_if *dest = sr_get_interface_ip(sr, iphdr->ip_dst);
+            struct sr_if *dest = sr_get_interface_by_ip(sr, iphdr->ip_dst);
 
             if (dest) {
                 printf("IP: destined for router\n");

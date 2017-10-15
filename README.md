@@ -30,7 +30,7 @@ Remove the original project folder on VM and pull the latest version from Github
 
 ```cd ~```
 
-```sudo rm -f -r cs144_lab3/```
+```sudo rm -rf cs144_lab3/```
 
 **Copying my code for your assignment is an academic offence. You have been warned.**
 

@@ -65,6 +65,18 @@ void print_addr_ip_int(uint32_t ip) {
   fprintf(stderr, "%d\n", curOctet);
 }
 
+/* Custom method: convert IP int to string */
+void addr_ip_int(char* buf, uint32_t ip) {
+    sprintf(
+        buf,
+        "%d.%d.%d.%d",
+        ip >> 24,
+        (ip << 8) >> 24,
+        (ip << 16) >> 24,
+        (ip << 24) >> 24
+    );
+}
+
 
 /* Prints out fields in Ethernet header. */
 void print_hdr_eth(uint8_t *buf) {

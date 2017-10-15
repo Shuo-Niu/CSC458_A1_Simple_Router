@@ -22,6 +22,49 @@
 #include "sr_rt.h"
 #include "sr_router.h"
 
+#include "sr_utils.h"
+
+/* Custom method: find the routing table entry which has the longest matching prefix with the destination IP addr */
+struct sr_rt* longest_matching_prefix(struct sr_instance* sr, uint32_t ip) {
+    struct sr_rt* match = NULL;
+
+    fprintf(stderr, "Trying to find longest matching prefix for: ");
+    print_addr_ip_int(ntohl(ip));
+
+    struct sr_rt* route = sr->routing_table;
+    while(route) {
+        /* check if route's (masked) addr matches our IP */
+        if((route->dest.s_addr & route->mask.s_addr) == (ip & route->mask.s_addr)) {
+            /* check if it's longer based on the mask */
+            if(!match || route->mask.s_addr > match->mask.s_addr) {
+                match = route;
+            }
+        }
+
+        route = route->next;
+    }
+
+    if(match) {
+        char dest_str[15];
+        char gw_str[15];
+        char mask_str[15];
+        addr_ip_int(dest_str, ntohl(match->dest.s_addr));
+        addr_ip_int(gw_str, ntohl(match->gw.s_addr));
+        addr_ip_int(mask_str, ntohl(match->mask.s_addr));
+        printf(
+            "Found match for prefix: {dest:\"%s\",gw:\"%s\",mask:\"%s\",interface:\"%s\"}.\n",
+            dest_str,
+            gw_str,
+            mask_str,
+            match->interface
+        );
+    } else {
+        printf("Couldn't find any prefix.\n");
+    }
+
+    return match;
+}
+
 /*---------------------------------------------------------------------
  * Method:
  *

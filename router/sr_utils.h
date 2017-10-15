@@ -37,6 +37,9 @@ void print_addr_eth(uint8_t *addr);
 void print_addr_ip(struct in_addr address);
 void print_addr_ip_int(uint32_t ip);
 
+/* Custom method: convert IP int to string */
+void addr_ip_int(char* buf, uint32_t ip);
+
 void print_hdr_eth(uint8_t *buf);
 void print_hdr_ip(uint8_t *buf);
 void print_hdr_icmp(uint8_t *buf);

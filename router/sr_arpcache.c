@@ -45,9 +45,9 @@ void handle_arpreq(struct sr_instance* sr, struct sr_arpreq* req) {
             arpreq_ehdr->ether_type = htons(ethertype_arp);
 
             sr_arp_hdr_t* arpreq_arphdr = (sr_arp_hdr_t*)(arpreq + sizeof(sr_ethernet_hdr_t));
-            arpreq_arphdr->ar_hdr = (unsigned short)htons(arp_hrd_ethernet);
+            arpreq_arphdr->ar_hrd = (unsigned short)htons(arp_hrd_ethernet);
             arpreq_arphdr->ar_pro = (unsigned short)htons(ethertype_ip);
-            arpreq_arphdr->ar_hin = (unsigned char)ETHER_ADDR_LEN;
+            arpreq_arphdr->ar_hln = (unsigned char)ETHER_ADDR_LEN;
             arpreq_arphdr->ar_pln = (unsigned char)sizeof(uint32_t);
             arpreq_arphdr->ar_op = (unsigned short)htons(arp_op_request);
             memcpy(arpreq_arphdr->ar_sha, intf->addr, ETHER_ADDR_LEN); /* Source MAC addr */

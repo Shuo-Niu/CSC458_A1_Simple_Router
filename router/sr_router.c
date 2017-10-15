@@ -56,7 +56,7 @@ void sr_init(struct sr_instance* sr)
 int verify_ip_packet(sr_ip_hdr_t* header) {
     uint16_t old_checksum = header->ip_sum;
     header->ip_sum = 0;
-    uint16_t new_chekcsum = cksum(head, header->ip_h1 * 4);
+    uint16_t new_chekcsum = cksum(header, header->ip_hl * 4);
     header->ip_sum = old_checksum;
     if(old_checksum != new_chekcsum) {
         printf("IP: checksum didn't match!\n");
@@ -119,13 +119,13 @@ void send_icmp_msg(struct sr_instance* sr, uint8_t* packet, unsigned int len, ui
             ip_hdr->ip_dst = temp;
 
             /* create ICMP header */
-            sr_icmp_hdr_t* icmp_hdr = (sr_icmp_hdr_t*)(packet + sizeof(sr_ethernet_hdr_t) + (ip_hdr->ip_h1 * 4));
+            sr_icmp_hdr_t* icmp_hdr = (sr_icmp_hdr_t*)(packet + sizeof(sr_ethernet_hdr_t) + (ip_hdr->ip_hl * 4));
             icmp_hdr->icmp_type = type;
             icmp_hdr->icmp_code = code;
 
             /* recompute ICMP checksum */
             icmp_hdr->icmp_sum = 0;
-            icmp_hdr->icmp_sum = cksum(icmp_hdr, ntohs(ip_hdr->ip_len) - (ip_hdr->ip_h1 * 4));
+            icmp_hdr->icmp_sum = cksum(icmp_hdr, ntohs(ip_hdr->ip_len) - (ip_hdr->ip_hl * 4));
             
             send_packet(sr, packet, len, sending_intf, route->gw.s_addr);
             break;
@@ -142,7 +142,7 @@ void send_icmp_msg(struct sr_instance* sr, uint8_t* packet, unsigned int len, ui
             /* construct new header */
             sr_ethernet_hdr_t* new_eth_hdr = (sr_ethernet_hdr_t*)new_packet;
             sr_ip_hdr_t* new_ip_hdr = (sr_ip_hdr_t*)(new_packet + sizeof(sr_ethernet_hdr_t));
-            sr_icmp_t3_hdr_t* icmp_hdr = (sr_icmp_t3_hdr_t*)(new_packet + sizeof(sr_ethernet_hdr_t) + (ip_hdr->ip_h1 * 4));
+            sr_icmp_t3_hdr_t* icmp_hdr = (sr_icmp_t3_hdr_t*)(new_packet + sizeof(sr_ethernet_hdr_t) + (ip_hdr->ip_hl * 4));
 
             /* set eth_hdr */
             memset(new_eth_hdr->ether_shost, 0, ETHER_ADDR_LEN);
@@ -151,7 +151,7 @@ void send_icmp_msg(struct sr_instance* sr, uint8_t* packet, unsigned int len, ui
 
             /* set ip_hdr */
             new_ip_hdr->ip_v    = 4;
-            new_ip_hdr->ip_h1   = sizeof(sr_ip_hdr_t) / 4;
+            new_ip_hdr->ip_hl   = sizeof(sr_ip_hdr_t) / 4;
             new_ip_hdr->ip_tos  = 0;
             new_ip_hdr->ip_len  = htons(sizeof(sr_ip_hdr_t) + sizeof(sr_icmp_t3_hdr_t));
             new_ip_hdr->ip_id   = htons(0);

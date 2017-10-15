@@ -119,9 +119,9 @@ enum icmp_dest_unreachable_code {
 
 /* Custom: ICMP msg type 11 codes */
 enum icmp_time_exceeded_code {
-    icmp_time_exceeded_transit = 0;
-    icmp_time_exceeded_reassembly = 1;
-}
+    icmp_time_exceeded_transit = 0,
+    icmp_time_exceeded_reassembly = 1,
+};
 
 /*
  * Structure of an internet header, naked of options.

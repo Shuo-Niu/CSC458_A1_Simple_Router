@@ -335,7 +335,7 @@ void handle_ip(struct sr_instance* sr, uint8_t* packet, unsigned int len, char* 
         ip_hdr->ip_sum = cksum(ip_hdr, ip_hdr->ip_hl * 4);
 
         /* lookup destination IP in routing table */
-        struct sr_rt* table_entry = longest_maching_prefix(sr, ip_hdr->ip_dst);
+        struct sr_rt* table_entry = longest_matching_prefix(sr, ip_hdr->ip_dst);
         if(!table_entry) {
             printf("Error: handle_ip: destination IP not existed in routing table.\n");
             send_icmp_msg(sr, packet, len, icmp_type_dest_unreachable, icmp_dest_unreachable_net);

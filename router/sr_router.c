@@ -324,7 +324,7 @@ void sr_handlepacket(struct sr_instance* sr,
             sr_ip_hdr_t *iphdr = (sr_ip_hdr_t *)payload;
 
             /* Drop packet if it's invalid */
-            if (verify_ip_packet(iphdr) == -1) {
+            if (verify_ip(iphdr) == -1) {
                 return;
             }
 

@@ -53,6 +53,6 @@ void sr_print_if(struct sr_if*);
 
 /* Custom methods */
 struct sr_if* sr_get_interface_by_ip(struct sr_instance*, uint32_t);
-struct sr_if* sr_get_interface_by_addr(struct sr_instance*, unsigned char*);
+struct sr_if* sr_get_interface_by_mac(struct sr_instance*, unsigned char*);
 
 #endif /* --  sr_INTERFACE_H -- */

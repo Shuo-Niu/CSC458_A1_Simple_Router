@@ -66,6 +66,7 @@ void print_addr_ip_int(uint32_t ip) {
 }
 
 /* Custom method: convert IP int to string */
+/* Basically modified from 'print_addr_ip_int' above */
 void addr_ip_int(char* buf, uint32_t ip) {
     sprintf(
         buf,
@@ -75,6 +76,54 @@ void addr_ip_int(char* buf, uint32_t ip) {
         (ip << 16) >> 24,
         (ip << 24) >> 24
     );
+}
+
+/* Custom method: sanity-check IP packet */
+int verify_ip(sr_ip_hdr_t* ip_hdr) {
+  /* store the received checksum */
+  uint16_t received_checksum = ip_hdr->ip_sum;
+  /* make checksum zero to calculate the true checksum */
+  ip_hdr->ip_sum = 0;
+  uint16_t true_checksum = cksum(ip_hdr, ip_hdr->ip_hl * 4);
+  ip_hdr->ip_sum = received_checksum;
+  /* compare the received checksum and the value it should be */
+  if(received_checksum != true_checksum) {
+      printf("Error: verify_ip: checksum didn't match.\n");
+      return -1;
+  }
+  /* verify the length of IP packet */
+  if(ip_hdr->ip_len < 20) {
+      printf("Error: verify_ip: IP packet too short.\n");
+      return -1;
+  }
+
+  return 0;
+}
+
+/* Custom method: sanity-check ICMP packet */
+int verify_icmp(uint8_t* packet, unsigned int len) {
+  uint8_t* payload = (packet + sizeof(sr_ethernet_hdr_t));
+  sr_ip_hdr_t* ip_hdr = (sr_ip_hdr_t*)payload;
+
+  /* verify the length of header */
+  if(len < sizeof(sr_ethernet_hdr_t) + sizeof(sr_icmp_hdr_t) + (ip_hdr->ip_hl * 4)) {
+    printf("Error: verify_icmp: header too short.\n");
+    return -1;
+  }
+
+  sr_icmp_hdr_t* icmp_hdr = (sr_icmp_hdr_t*)(packet + sizeof(sr_ethernet_hdr_t) + sizeof(sr_ip_hdr_t));
+
+  /* verify the checksum */
+  uint16_t received_checksum = icmp_hdr->icmp_sum;
+  icmp_hdr->icmp_sum = 0;
+  uint16_t true_checksum = cksum(icmp_hdr, ntohs(ip_hdr->ip_len) - (ip_hdr->ip_hl * 4));
+  icmp_hdr->icmp_sum = received_checksum;
+  if(received_checksum != true_checksum) {
+    printf("Error: verify_icmp: checksum didn't match.\n");
+    return -1;
+  }
+
+  return 0;
 }
 
 

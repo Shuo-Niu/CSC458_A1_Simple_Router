@@ -75,8 +75,9 @@ void sr_set_ether_addr(struct sr_instance* , const unsigned char* );
 void sr_print_if_list(struct sr_instance* );
 
 /* Custom methods */
-int verify_ip_packet(sr_ip_hdr_t*);
 void send_packet(struct sr_instance*, uint8_t*, unsigned int, struct sr_if*, uint32_t);
 void send_icmp_msg(struct sr_instance*, uint8_t*, unsigned int, uint8_t, uint8_t);
+void handle_arp(struct sr_instance*, uint8_t*, unsigned int, char*);
+void handle_ip(struct sr_instance*, uint8_t*, unsigned int, char*);
 
 #endif /* SR_ROUTER_H */

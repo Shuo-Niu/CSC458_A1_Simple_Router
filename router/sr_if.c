@@ -54,8 +54,8 @@ struct sr_if* sr_get_interface(struct sr_instance* sr, const char* name)
     return 0;
 } /* -- sr_get_interface -- */
 
-/* Custom method: get interface by specified IP 
- * modified from the provided 'sr_get_interface' */
+/* Custom method: get interface by specified IP addr
+ * modified from the provided 'sr_get_interface' above */
 struct sr_if* sr_get_interface_by_ip(struct sr_instance* sr, uint32_t ip) {
     struct sr_if* if_walker = 0;
 
@@ -75,8 +75,8 @@ struct sr_if* sr_get_interface_by_ip(struct sr_instance* sr, uint32_t ip) {
 }
 
 /* Custom method: get interface by specified MAC addr 
- * modified from the provided 'sr_get_interface' */
-struct sr_if* sr_get_interface_by_addr(struct sr_instance* sr, unsigned char* addr) {
+ * modified from the provided 'sr_get_interface' above */
+struct sr_if* sr_get_interface_by_mac(struct sr_instance* sr, unsigned char* addr) {
     struct sr_if* if_walker = 0;
     
     /* -- REQUIRES -- */

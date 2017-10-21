@@ -39,6 +39,8 @@ void print_addr_ip_int(uint32_t ip);
 
 /* Custom method: convert IP int to string */
 void addr_ip_int(char* buf, uint32_t ip);
+int verify_ip(sr_ip_hdr_t*);
+int verify_icmp(uint8_t*, unsigned int);
 
 void print_hdr_eth(uint8_t *buf);
 void print_hdr_ip(uint8_t *buf);

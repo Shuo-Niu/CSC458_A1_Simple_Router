@@ -33,7 +33,7 @@ void handle_arpreq(struct sr_instance* sr, struct sr_arpreq* request) {
                 /* default linked list structure of packet sr_packet in "sr_arpcache.h" */
                 packet = packet->next;
             }
-            sr_arpreq_destroy(&sr->cache, req);
+            sr_arpreq_destroy(&sr->cache, request);
         } else {
             /* send ARP request */
             /* get the interface by name */

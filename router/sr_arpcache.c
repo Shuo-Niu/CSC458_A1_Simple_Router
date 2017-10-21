@@ -26,13 +26,14 @@ void handle_arpreq(struct sr_instance* sr, struct sr_arpreq* request) {
                 /* extract ethernet header from the packet */
                 packet_eth_hdr = (sr_ethernet_hdr_t*)(packet->buf);
                 /* extract the destination MAC from ethernet header, if the router can find the corresponding interface */
-                if(sr_get_interface_by_mac(sr, (unsigned char *)packet_eth_hdr->ether_dhost)) {
+                if(sr_get_interface_by_mac(sr, (unsigned char*)packet_eth_hdr->ether_dhost)) {
                     /* send icmp dest_unreachable to packet's source */
                     send_icmp_msg(sr, packet->buf, packet->len, icmp_type_dest_unreachable, icmp_dest_unreachable_host);
                 }
                 /* default linked list structure of packet sr_packet in "sr_arpcache.h" */
                 packet = packet->next;
             }
+            sr_arpreq_destroy(&sr->cache, req);
         } else {
             /* send ARP request */
             /* get the interface by name */

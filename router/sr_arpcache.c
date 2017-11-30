@@ -17,7 +17,7 @@ void handle_arpreq(struct sr_instance* sr, struct sr_arpreq* request) {
     time_t current_time;
     time(&current_time);
 
-    if(difftime(current_time, request->sent) > 1.0) {
+    if(difftime(current_time, request->sent) >= 1.0) {
         if(request->times_sent >= 5) {
             /* send 'ICMP host unreachable' to source MAC of all packets waiting on this request */
             struct sr_packet* packet = request->packets;

@@ -25,8 +25,8 @@
 ```./sr```
 
 ---
-### Pull from Github to update the code on VM
-Remove the original project folder on VM and pull the latest version from Github.
+### Clone from Github to update the code on VM
+Remove the original project folder on VM and clone the latest version from Github.
 
 ```cd ~```
 
